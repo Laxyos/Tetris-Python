@@ -190,7 +190,10 @@ class Tetris:
         n, c = self.current_piece[0], self.current_piece[1]
         for i in range(len(self.pieces[n][c])):
             for j in range(len(self.pieces[n][c][i])):
-                if self.pos_piece[1]+(len(self.pieces[n][c])-i-1) < self.hauteur and self.pos_piece[0]+j < self.largeur:
+                if self.pos_piece[1]+(len(self.pieces[n][c])-i-1) < self.hauteur:
+                    if self.pos_piece[0]+j >= self.largeur:
+                        print("test")
+                        return True
                     a = self.grille[self.pos_piece[1]+(len(self.pieces[n][c])-i-1)][self.pos_piece[0]+j]
                     if not a == 0 and not self.pieces[n][c][i][j] == 0:
                         return True
@@ -214,7 +217,9 @@ class Tetris:
         n, c = self.current_piece[0], self.current_piece[1]
         for i in range(len(self.pieces[n][c])):
             for j in range(len(self.pieces[n][c][i])):
-                if self.pos_piece[1]+(len(self.pieces[n][c])-i-1) < self.hauteur and self.pos_piece[0]+j < self.largeur:
+                if self.pos_piece[1]+(len(self.pieces[n][c])-i-1) < self.hauteur:
+                    if self.pos_piece[0]+j >= self.largeur:
+                        return True
                     a = self.grille[self.pos_piece[1]+(len(self.pieces[n][c])-i-1)][self.pos_piece[0]+j]
                     if a == 0:
                         self.dessiner_case(self.pos_piece[0]*self.taille_case + j*self.taille_case, (self.hauteur-self.pos_piece[1])*self.taille_case +(-len(self.pieces[n][c]) + i)*self.taille_case , "white")
