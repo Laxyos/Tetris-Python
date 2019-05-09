@@ -10,8 +10,8 @@ import tkinter as tk
 
 class Tetris:
     def __init__(self):
-        self.hauteur = 30
-        self.largeur = 40
+        self.hauteur = 22
+        self.largeur = 10
         self.taille_case = 20
         self.width, self.height= self.largeur*self.taille_case, self.hauteur*self.taille_case
         self.Canvas = tk.Canvas(fenetre, width = self.width, height = self.height, bg = "white")
@@ -157,7 +157,7 @@ class Tetris:
 
     def spawn_piece(self):
         self.pos_piece = [4, self.hauteur+1]
-        self.current_piece = [randint(8,9), 0]
+        self.current_piece = [randint(0,6), 0]
 
         
     def tourner_piece(self, clockwise):
@@ -236,7 +236,7 @@ class Tetris:
         elif n == 3:
             return "#47cef7"
         elif n == 4:
-            return "red"
+            return "#ea9012"
         elif n == 5:
             return '#1324db'
         elif n == 6:
