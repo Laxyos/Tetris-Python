@@ -118,14 +118,17 @@ class Tetris:
             self.pos_piece[0] -= mvt[0]
 
         if self.collision_piece():
-            if turn == True:
+            if turn:
                 self.tourner_piece(False)
-            self.pos_piece[0] -= mvt[0]
-            self.pos_piece[1] -= mvt[1]
-            if not (mvt[0] == 1 or mvt[0] == -1 and mvt[1] == 0):   #permet aux pieces de glisser verticalement contre des pieces deja posées
-                self.dessiner_piece()
-                self.add_to_grille()
-                self.spawn_piece()
+            else:
+                self.pos_piece[0] -= mvt[0]
+                self.pos_piece[1] -= mvt[1]
+                if not (mvt[0] == 1 or mvt[0] == -1 and mvt[1] == 0):   #permet aux pieces de glisser verticalement contre des pieces deja posées
+                    self.dessiner_piece()
+                    self.add_to_grille()
+                    self.spawn_piece()
+
+                
 
         if self.collision_sol():
             self.pos_piece[1] -= mvt[1]
@@ -153,7 +156,7 @@ class Tetris:
             self.spawn_piece()
 
         self.dessiner_piece()
-        self.Canvas.after(200, self.down_piece)
+        self.Canvas.after(1000, self.down_piece)
 
     def spawn_piece(self):
         self.pos_piece = [4, self.hauteur+1]
@@ -187,7 +190,7 @@ class Tetris:
         n, c = self.current_piece[0], self.current_piece[1]
         for i in range(len(self.pieces[n][c])):
             for j in range(len(self.pieces[n][c][i])):
-                if self.pos_piece[1]+(len(self.pieces[n][c])-i-1) < self.hauteur:
+                if self.pos_piece[1]+(len(self.pieces[n][c])-i-1) < self.hauteur and self.pos_piece[0]+j < self.largeur:
                     a = self.grille[self.pos_piece[1]+(len(self.pieces[n][c])-i-1)][self.pos_piece[0]+j]
                     if not a == 0 and not self.pieces[n][c][i][j] == 0:
                         return True
@@ -211,7 +214,7 @@ class Tetris:
         n, c = self.current_piece[0], self.current_piece[1]
         for i in range(len(self.pieces[n][c])):
             for j in range(len(self.pieces[n][c][i])):
-                if self.pos_piece[1]+(len(self.pieces[n][c])-i-1) < self.hauteur:
+                if self.pos_piece[1]+(len(self.pieces[n][c])-i-1) < self.hauteur and self.pos_piece[0]+j < self.largeur:
                     a = self.grille[self.pos_piece[1]+(len(self.pieces[n][c])-i-1)][self.pos_piece[0]+j]
                     if a == 0:
                         self.dessiner_case(self.pos_piece[0]*self.taille_case + j*self.taille_case, (self.hauteur-self.pos_piece[1])*self.taille_case +(-len(self.pieces[n][c]) + i)*self.taille_case , "white")
