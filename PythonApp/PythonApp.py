@@ -7,6 +7,7 @@ Created on Thu Apr 25 15:09:00 2019
 import simpleaudio as sa
 from random import randint
 import tkinter as tk
+import math
 
 class AudioManager:
     def __init__(self):
@@ -18,6 +19,9 @@ class AudioManager:
     def load_audios(self):
          self.load("line")
          self.load("theme2")
+         self.load("rotate")
+         self.load("hit")
+         self.load("pose")
 
     def load(self, filename):
         self.ressources[filename] = sa.WaveObject.from_wave_file(__file__ + "/../" + filename + ".wav")
@@ -35,10 +39,9 @@ class Tetris:
         self.Canvas = tk.Canvas(fenetre, width = self.width, height = self.height, bg = "white")
        
         self.grille = [[0 for i in range(self.largeur)] for y in range(self.hauteur)]
-        
         self.audio = AudioManager()
 
-
+        self.score = 0
         self.pieces = [[[[1, 1],            # O
                          [1, 1]]],
                        
@@ -111,6 +114,7 @@ class Tetris:
         self.theme = self.audio.get("theme2").play()
 
 
+        self.carre = 0
         self.current_piece = [] #Donne les information de la piece en cours : current_piece[0]: piece, current_piece[1] : configuration de la piece
         self.spawn_piece()
 
@@ -138,36 +142,56 @@ class Tetris:
         if event.keysym == "Up":
             turn = True
             self.tourner_piece(True)
+            self.audio.get("rotate").play()
+        
 
         self.pos_piece[0] += mvt[0]
         self.pos_piece[1] += mvt[1]
 
         if self.collision_murs():
             self.pos_piece[0] -= mvt[0]
+            self.audio.get("hit").play()
 
         if self.collision_piece():
             if turn:
                 self.tourner_piece(False)
+                self.audio.get("hit").play()
             else:
                 self.pos_piece[0] -= mvt[0]
                 self.pos_piece[1] -= mvt[1]
                 if not (mvt[0] == 1 or mvt[0] == -1 and mvt[1] == 0):   #permet aux pieces de glisser verticalement contre des pieces deja posées
+                    self.audio.get("pose").play()
                     self.dessiner_piece()
                     self.add_to_grille()
                     self.check_line()
                     self.spawn_piece()
 
+                     
                 
 
         if self.collision_sol():
             self.pos_piece[1] -= mvt[1]
             self.dessiner_piece()
 
+            self.audio.get("pose").play()
             self.add_to_grille()
             self.check_line()
             self.spawn_piece()
         self.dessiner_piece()
-
+        bo = True
+        if event.keysym == "a":
+            while bo:
+                self.clear_piece()
+                self.pos_piece[1] -= 1
+                if self.collision_sol() or self.collision_piece():
+                    self.audio.get("pose").play()
+                    self.pos_piece[1] += 1
+                    bo = False
+            self.dessiner_piece()
+            self.add_to_grille()
+            self.check_line()
+            self.spawn_piece()
+                
 
 
     def check_line(self):
@@ -184,6 +208,7 @@ class Tetris:
             L.reverse()
             
         for i in range(len(L)):
+            self.score += 100
             L2 = self.grille[L[i] +1:] #correspond a la partie au dessus de la ligne (celle a deplacer de 1 en bas)
             L3 = self.grille[:L[i]] #correspond au bas de la grille, sans la ligne devant etre supprimée
             LF = L3+L2+[[0]*10] #assemblage des deux listes en ajoutant une ligne blanche en haut
@@ -195,28 +220,20 @@ class Tetris:
     
     def down_piece(self):
         if not self.theme.is_playing():
-            print("test")
             self.theme = self.audio.get("theme2").play()
 
         #TODO : faire le check des collisions.
         self.clear_piece()
         self.pos_piece[1] -= 1
-        if self.collision_piece():
+        if self.collision_piece() or self.collision_sol():
+            self.audio.get("pose").play()
             self.pos_piece[1] += 1
             self.dessiner_piece()
             self.add_to_grille()
             self.check_line()
             self.spawn_piece()
-
-        if self.collision_sol():
-            self.pos_piece[1] += 1
-            self.dessiner_piece()
-            self.add_to_grille()
-            self.check_line()
-            self.spawn_piece()
-
         self.dessiner_piece()
-        self.Canvas.after(1000, self.down_piece)
+        self.Canvas.after(int(1000 * math.exp((-self.score)/(1000)) + 100), self.down_piece)
 
     def spawn_piece(self):
         self.pos_piece = [4, self.hauteur+1]
@@ -285,6 +302,9 @@ class Tetris:
 
 
     def dessiner_grille(self):
+        if self.carre:
+            self.Canvas.delete(self.carre)
+
         for i in range(self.hauteur):
             for j in range(self.largeur):
                 x = self.pos(j, i)
