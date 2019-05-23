@@ -4,9 +4,27 @@ Created on Thu Apr 25 15:09:00 2019
 
 @author: axelg
 """
-
+import simpleaudio as sa
 from random import randint
 import tkinter as tk
+
+class AudioManager:
+    def __init__(self):
+        self.ressources = dict({})
+        self.load_audios()
+
+    def get(self, name):
+        return self.ressources.get(name, "")
+    def load_audios(self):
+         self.load("line")
+         self.load("theme2")
+
+    def load(self, filename):
+        self.ressources[filename] = sa.WaveObject.from_wave_file(__file__ + "/../" + filename + ".wav")
+
+#linesong = sa.WaveObject.from_wave_file(__file__ + "/../line.wav")
+#themesong = 
+#play = themesong.play()
 
 class Tetris:
     def __init__(self):
@@ -18,6 +36,9 @@ class Tetris:
        
         self.grille = [[0 for i in range(self.largeur)] for y in range(self.hauteur)]
         
+        self.audio = AudioManager()
+
+
         self.pieces = [[[[1, 1],            # O
                          [1, 1]]],
                        
@@ -87,7 +108,9 @@ class Tetris:
            # self.grille[1][i] = 1
            # self.grille[2][i] = 1
            # self.grille[3][i] = 1
-        
+        self.theme = self.audio.get("theme2").play()
+
+
         self.current_piece = [] #Donne les information de la piece en cours : current_piece[0]: piece, current_piece[1] : configuration de la piece
         self.spawn_piece()
 
@@ -156,7 +179,10 @@ class Tetris:
                     S +=1
                     if S==10:
                         L.append(i)
-        L.reverse()
+        if  not len(L) == 0:
+            self.audio.get('line').play()
+            L.reverse()
+            
         for i in range(len(L)):
             L2 = self.grille[L[i] +1:] #correspond a la partie au dessus de la ligne (celle a deplacer de 1 en bas)
             L3 = self.grille[:L[i]] #correspond au bas de la grille, sans la ligne devant etre supprimée
@@ -168,6 +194,10 @@ class Tetris:
     
     
     def down_piece(self):
+        if not self.theme.is_playing():
+            print("test")
+            self.theme = self.audio.get("theme2").play()
+
         #TODO : faire le check des collisions.
         self.clear_piece()
         self.pos_piece[1] -= 1
