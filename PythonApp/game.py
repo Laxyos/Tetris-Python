@@ -7,6 +7,7 @@ Created on Thu Apr 25 15:09:00 2019
 
 from random import randint
 import tkinter as tk
+import hashlib as hl
 
         
 class Tetris:

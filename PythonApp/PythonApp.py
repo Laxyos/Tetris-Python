@@ -17,7 +17,7 @@ class Tetris:
         self.Canvas = tk.Canvas(fenetre, width = self.width, height = self.height, bg = "white")
        
         self.grille = [[0 for i in range(self.largeur)] for y in range(self.hauteur)]
-
+        
         self.pieces = [[[[1, 1],            # O
                          [1, 1]]],
                        
@@ -82,6 +82,11 @@ class Tetris:
                            [0,0,8,0,0,8,8,0,0],
                            [0,8,0,8,8,0,0,8,0],
                            [8,0,0,0,0,0,0,0,8]]]] 
+       # for i in range(9):
+           # self.grille[0][i] = 1
+           # self.grille[1][i] = 1
+           # self.grille[2][i] = 1
+           # self.grille[3][i] = 1
         
         self.current_piece = [] #Donne les information de la piece en cours : current_piece[0]: piece, current_piece[1] : configuration de la piece
         self.spawn_piece()
@@ -126,6 +131,7 @@ class Tetris:
                 if not (mvt[0] == 1 or mvt[0] == -1 and mvt[1] == 0):   #permet aux pieces de glisser verticalement contre des pieces deja posées
                     self.dessiner_piece()
                     self.add_to_grille()
+                    self.check_line()
                     self.spawn_piece()
 
                 
@@ -135,9 +141,31 @@ class Tetris:
             self.dessiner_piece()
 
             self.add_to_grille()
+            self.check_line()
             self.spawn_piece()
         self.dessiner_piece()
-       
+
+
+
+    def check_line(self):
+        L = []
+        for i in range(len(self.grille)):
+            S = 0
+            for j in range(len(self.grille[0])):
+                if not self.grille[i][j] == 0:
+                    S +=1
+                    if S==10:
+                        L.append(i)
+        L.reverse()
+        for i in range(len(L)):
+            L2 = self.grille[L[i] +1:] #correspond a la partie au dessus de la ligne (celle a deplacer de 1 en bas)
+            L3 = self.grille[:L[i]] #correspond au bas de la grille, sans la ligne devant etre supprimée
+            LF = L3+L2+[[0]*10] #assemblage des deux listes en ajoutant une ligne blanche en haut
+            self.grille = LF    
+            self.dessiner_grille()
+        
+     
+    
     
     def down_piece(self):
         #TODO : faire le check des collisions.
@@ -147,12 +175,14 @@ class Tetris:
             self.pos_piece[1] += 1
             self.dessiner_piece()
             self.add_to_grille()
+            self.check_line()
             self.spawn_piece()
 
         if self.collision_sol():
             self.pos_piece[1] += 1
             self.dessiner_piece()
             self.add_to_grille()
+            self.check_line()
             self.spawn_piece()
 
         self.dessiner_piece()
@@ -192,7 +222,6 @@ class Tetris:
             for j in range(len(self.pieces[n][c][i])):
                 if self.pos_piece[1]+(len(self.pieces[n][c])-i-1) < self.hauteur:
                     if self.pos_piece[0]+j >= self.largeur:
-                        print("test")
                         return True
                     a = self.grille[self.pos_piece[1]+(len(self.pieces[n][c])-i-1)][self.pos_piece[0]+j]
                     if not a == 0 and not self.pieces[n][c][i][j] == 0:
@@ -258,5 +287,6 @@ class Tetris:
         return [i*self.taille_case, (self.hauteur-j)*self.taille_case - self.taille_case]
 
 fenetre = tk.Tk()
+fenetre.title("TETRIS")
 App = Tetris()
 fenetre.mainloop()
